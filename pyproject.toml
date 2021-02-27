@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "segmentation"
+version = "0.1.0"
+description = ""
+authors = ["hrsma2i <hrs.ma2i@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+torch = "1.6.0"
+torchvision = "0.7.0"
+mmcv-full = "^1.2.7"
+mmsegmentation = "^0.11.0"
+typer = "^0.3.2"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.8.4"
+black = "^20.8b1"
+mypy = "^0.812"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
