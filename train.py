@@ -23,7 +23,8 @@ palette = [
 img_dir = "images"
 ann_dir = "labels"
 data_root = "../data/iccv09Data"
-config_file = "configs/pspnet/pspnet_r50-d8_512x1024_40k_cityscapes.py"
+# config_file = "configs/pspnet/pspnet_r50-d8_512x1024_40k_cityscapes.py"
+config_file = "configs/fastscnn/fast_scnn_4x8_80k_lr0.12_cityscapes.py"
 
 
 @DATASETS.register_module()
@@ -38,16 +39,25 @@ class StandfordBackgroundDataset(CustomDataset):
         assert osp.exists(self.img_dir) and self.split is not None
 
 
-def main(batch_size: int = 20):
+def main(batch_size: int = 2):
     cfg = Config.fromfile(config_file)
     # Since we use ony one GPU, BN is used instead of SyncBN
     cfg.norm_cfg = dict(type="BN", requires_grad=True)
     cfg.model.backbone.norm_cfg = cfg.norm_cfg
     cfg.model.decode_head.norm_cfg = cfg.norm_cfg
-    cfg.model.auxiliary_head.norm_cfg = cfg.norm_cfg
+    # cfg.model.auxiliary_head.norm_cfg = cfg.norm_cfg
+    cfg.model.auxiliary_head[0].norm_cfg = cfg.norm_cfg
+    cfg.model.auxiliary_head[1].norm_cfg = cfg.norm_cfg
+
     # modify num classes of the model in decode/auxiliary head
-    cfg.model.decode_head.num_classes = 8
-    cfg.model.auxiliary_head.num_classes = 8
+    cfg.model.decode_head.num_classes = len(classes)
+    # cfg.model.auxiliary_head.num_classes = 8
+    cfg.model.auxiliary_head[0].num_classes = len(classes)
+    cfg.model.auxiliary_head[1].num_classes = len(classes)
+
+    cfg.model.decode_head.loss_decode.use_sigmoid = False
+    cfg.model.auxiliary_head[0].loss_decode.use_sigmoid = False
+    cfg.model.auxiliary_head[1].loss_decode.use_sigmoid = False
 
     # Modify dataset type and path
     cfg.dataset_type = "StandfordBackgroundDataset"
