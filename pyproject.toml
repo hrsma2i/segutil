@@ -3,6 +3,7 @@ name = "segmentation"
 version = "0.1.0"
 description = ""
 authors = ["hrsma2i <hrs.ma2i@gmail.com>"]
+packages = [{ include = "segmentation" }]
 
 [tool.poetry.dependencies]
 python = "^3.7"
