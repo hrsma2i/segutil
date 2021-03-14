@@ -6,11 +6,17 @@ authors = ["hrsma2i <hrs.ma2i@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-torch = "1.6.0"
-torchvision = "0.7.0"
-mmcv-full = "^1.2.7"
-mmsegmentation = "^0.11.0"
-typer = "^0.3.2"
+torch = { version = "1.6.0", optional = true }
+torchvision = { version = "0.7.0", optional = true }
+mmcv-full = { version = "^1.2.7", optional = true }
+mmsegmentation = { version = "^0.11.0", optional = true }
+typer = { version = "^0.3.2", optional = true }
+numpy = { version = "^1.20.1", optional = true }
+matplotlib = { version = "^3.3.4", optional = true }
+
+[tool.poetry.extras]
+fastscnn = ["torch", "torchvision", "mmcv-full", "mmsegmentation", "typer"]
+vis = ["numpy", "matplotlib"]
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
