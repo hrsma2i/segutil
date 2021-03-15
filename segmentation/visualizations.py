@@ -2,17 +2,72 @@ from __future__ import division
 
 import numpy as np
 
-from segmentation.visualizations.colormap import voc_colormap
-from segmentation.visualizations import vis_image
+
+def voc_colormap(labels):
+    """Color map used in PASCAL VOC
+
+    Args:
+        labels (iterable of ints): Class ids.
+
+    Returns:
+        numpy.ndarray: Colors in RGB order. The shape is :math:`(N, 3)`,
+        where :math:`N` is the size of :obj:`labels`. The range of the values
+        is :math:`[0, 255]`.
+
+    """
+    colors = []
+    for label in labels:
+        r, g, b = 0, 0, 0
+        i = label
+        for j in range(8):
+            if i & (1 << 0):
+                r |= 1 << (7 - j)
+            if i & (1 << 1):
+                g |= 1 << (7 - j)
+            if i & (1 << 2):
+                b |= 1 << (7 - j)
+            i >>= 3
+        colors.append((r, g, b))
+    return np.array(colors, dtype=np.float32)
 
 
-def vis_semantic_segmentation(
+def vis_image(img, ax=None):
+    """Visualize a color image.
+
+    Args:
+        img (~numpy.ndarray): See the table below.
+            If this is :obj:`None`, no image is displayed.
+        ax (matplotlib.axes.Axis): The visualization is displayed on this
+            axis. If this is :obj:`None` (default), a new axis is created.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+
+    Returns:
+        ~matploblib.axes.Axes:
+        Returns the Axes object with the plot for further tweaking.
+
+    """
+    from matplotlib import pyplot as plot
+
+    if ax is None:
+        fig = plot.figure()
+        ax = fig.add_subplot(1, 1, 1)
+    if img is not None:
+        ax.imshow(img.astype(np.uint8))
+    return ax
+
+
+def vis_segmap(
     img,
     label,
     label_names=None,
     label_colors=None,
-    ignore_label_color=(0, 0, 0),
-    alpha=1,
+    ignore_label_color=(255, 255, 255),
+    alpha=0.6,
     all_label_names_in_legend=False,
     ax=None,
 ):
@@ -63,6 +118,9 @@ def vis_semantic_segmentation(
         :func:`matploblib.pyplot.legend` to show a legend.
 
     """
+    # 255 -> -1
+    label = (label.astype(np.uint8) + 1).astype(np.int32) - 1
+
     import matplotlib
     from matplotlib.patches import Patch
 
@@ -101,7 +159,7 @@ def vis_semantic_segmentation(
     ax.imshow(canvas_img)
 
     legend_handles = []
-    if all_label_names_in_legend:
+    if not all_label_names_in_legend:
         legend_labels = [l for l in np.unique(label) if l >= 0]
     else:
         legend_labels = range(n_class)
