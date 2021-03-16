@@ -29,7 +29,7 @@ def masks_to_segmap(masks: np.ndarray, class_ids: np.ndarray) -> np.ndarray:
 
 def segmap_to_pil(
     segmap: np.ndarray,
-    class_ids: Sequence[int],
+    all_class_ids: Sequence[int],
 ) -> Image.Image:
     """[summary]
 
@@ -37,16 +37,15 @@ def segmap_to_pil(
         segmap    (np.ndarray; C'^(height, width)): a segmentation map
             C': {0, 1, ..., #classes-1, 255}
                 255: background
-        class_ids (np.ndarray;  C^(#rles_i, )):
+        all_class_ids (np.ndarray;  C^(#C, )):
             C:  {0, 1, ..., #classes-1}
-            #rles_i: the number of RLE annotations for an image `i`
 
     Returns:
         Image.Image: [description]
     """
     background = np.array([255, 255, 255]).reshape(1, -1)
     palette = np.concatenate(
-        (voc_colormap(class_ids), background),
+        (voc_colormap(all_class_ids), background),
         axis=0,
     )
 
