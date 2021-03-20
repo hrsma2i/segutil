@@ -34,6 +34,7 @@ def main(
         " whose shape is (#classes, RGB)",
     ),
     max_iters: int = 80000,
+    log_interval: int = 10,
     batch_size: int = 2,
 ):
     with (Path(data_root) / classes_txt).open() as f:
@@ -135,7 +136,7 @@ def main(
     cfg.work_dir = "./work_dirs/tutorial"
 
     cfg.runner.max_iters = max_iters
-    cfg.log_config.interval = 10
+    cfg.log_config.interval = log_interval
     cfg.evaluation.interval = 200
     cfg.checkpoint_config.interval = 200
 
