@@ -33,6 +33,7 @@ def main(
         help="The relative path for a txt file, where a np.ndarray is saved,"
         " whose shape is (#classes, RGB)",
     ),
+    max_iters: int = 80000,
     batch_size: int = 2,
 ):
     with (Path(data_root) / classes_txt).open() as f:
@@ -133,7 +134,7 @@ def main(
     # Set up working dir to save files and logs.
     cfg.work_dir = "./work_dirs/tutorial"
 
-    cfg.total_iters = 200
+    cfg.runner.max_iters = max_iters
     cfg.log_config.interval = 10
     cfg.evaluation.interval = 200
     cfg.checkpoint_config.interval = 200
