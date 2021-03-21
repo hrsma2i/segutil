@@ -33,6 +33,13 @@ def main(
         help="The relative path for a txt file, where a np.ndarray is saved,"
         " whose shape is (#classes, RGB)",
     ),
+    train_split=typer.Option(
+        None, help="The relative path for a txt file listing image names to train on."
+    ),
+    val_split=typer.Option(
+        None,
+        help="The relative path for a txt file listing image names to validate and test on.",
+    ),
     out_dir=typer.Option(
         ...,
         help="The (abusolute) path for a directory where model weights will be saved.",
@@ -112,7 +119,7 @@ def main(
     cfg.data.train.palette = palette
     cfg.data.train.classes = classes
     cfg.data.train.pipeline = cfg.train_pipeline
-    cfg.data.train.split = None  # "splits/train.txt"
+    cfg.data.train.split = train_split
 
     cfg.data.val.type = cfg.dataset_type
     cfg.data.val.data_root = cfg.data_root
@@ -121,7 +128,7 @@ def main(
     cfg.data.val.palette = palette
     cfg.data.val.classes = classes
     cfg.data.val.pipeline = cfg.test_pipeline
-    cfg.data.val.split = None  # "splits/val.txt"
+    cfg.data.val.split = val_split
 
     cfg.data.test.type = cfg.dataset_type
     cfg.data.test.data_root = cfg.data_root
@@ -130,7 +137,7 @@ def main(
     cfg.data.test.palette = palette
     cfg.data.test.classes = classes
     cfg.data.test.pipeline = cfg.test_pipeline
-    cfg.data.test.split = None  # "splits/val.txt"
+    cfg.data.test.split = val_split
 
     # We can still use the pre-trained Mask RCNN model though we do not need to
     # use the mask branch
