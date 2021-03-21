@@ -44,7 +44,7 @@ def main(
     batch_size: int = 2,
 ):
     with (Path(data_root) / classes_txt).open() as f:
-        classes = [x for x in f]
+        classes = [x.rstrip() for x in f]
     palette = np.loadtxt(Path(data_root) / palette_txt).astype(int).tolist()
 
     cfg = Config.fromfile(config_file)
@@ -145,6 +145,10 @@ def main(
     cfg.log_config.interval = log_interval
     cfg.evaluation.interval = eval_interval
     cfg.checkpoint_config.interval = save_interval
+    cfg.checkpoint_config.meta = dict(
+        CLASSES=classes,
+        PALETTE=palette,
+    )
 
     # Set seed to facitate reproducing the result
     cfg.seed = 0
@@ -164,6 +168,7 @@ def main(
 
     # Create work_dir
     mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
+    cfg.dump(osp.join(out_dir, "config.py"))
     train_segmentor(model, datasets, cfg, distributed=False, validate=True, meta=dict())
 
 
