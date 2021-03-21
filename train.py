@@ -33,6 +33,10 @@ def main(
         help="The relative path for a txt file, where a np.ndarray is saved,"
         " whose shape is (#classes, RGB)",
     ),
+    out_dir=typer.Option(
+        ...,
+        help="The (abusolute) path for a directory where model weights will be saved.",
+    ),
     max_iters: int = 80000,
     log_interval: int = 10,
     eval_interval: int = 200,
@@ -135,7 +139,7 @@ def main(
     # )
 
     # Set up working dir to save files and logs.
-    cfg.work_dir = "./work_dirs/tutorial"
+    cfg.work_dir = out_dir
 
     cfg.runner.max_iters = max_iters
     cfg.log_config.interval = log_interval
