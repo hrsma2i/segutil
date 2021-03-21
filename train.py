@@ -35,6 +35,8 @@ def main(
     ),
     max_iters: int = 80000,
     log_interval: int = 10,
+    eval_interval: int = 200,
+    save_interval: int = 200,
     batch_size: int = 2,
 ):
     with (Path(data_root) / classes_txt).open() as f:
@@ -137,8 +139,8 @@ def main(
 
     cfg.runner.max_iters = max_iters
     cfg.log_config.interval = log_interval
-    cfg.evaluation.interval = 200
-    cfg.checkpoint_config.interval = 200
+    cfg.evaluation.interval = eval_interval
+    cfg.checkpoint_config.interval = save_interval
 
     # Set seed to facitate reproducing the result
     cfg.seed = 0
