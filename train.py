@@ -33,6 +33,10 @@ def main(
         help="The relative path for a txt file, where a np.ndarray is saved,"
         " whose shape is (#classes, RGB)",
     ),
+    resume_from=typer.Option(
+        None,
+        help="The (abusolute) path for a checkpoint file to resume.",
+    ),
     train_split=typer.Option(
         None, help="The relative path for a txt file listing image names to train on."
     ),
@@ -131,11 +135,9 @@ def main(
     cfg.data.val.pipeline = cfg.test_pipeline
     cfg.data.val.split = val_split
 
-    # We can still use the pre-trained Mask RCNN model though we do not need to
-    # use the mask branch
-    # cfg.load_from = (
-    #     "checkpoints/pspnet_r50-d8_512x1024_40k_cityscapes_20200605_003338-2966598c.pth"
-    # )
+    if resume_from:
+        print(f"resume from {resume_from}")
+        cfg.resume_from = resume_from
 
     # Set up working dir to save files and logs.
     cfg.work_dir = out_dir
