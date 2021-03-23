@@ -44,6 +44,7 @@ def main(
         ...,
         help="The (abusolute) path for a directory where model weights will be saved.",
     ),
+    validate: bool = False,
     max_iters: int = 80000,
     log_interval: int = 10,
     eval_interval: int = 200,
@@ -130,15 +131,6 @@ def main(
     cfg.data.val.pipeline = cfg.test_pipeline
     cfg.data.val.split = val_split
 
-    cfg.data.test.type = cfg.dataset_type
-    cfg.data.test.data_root = cfg.data_root
-    cfg.data.test.img_dir = img_dir
-    cfg.data.test.ann_dir = ann_dir
-    cfg.data.test.palette = palette
-    cfg.data.test.classes = classes
-    cfg.data.test.pipeline = cfg.test_pipeline
-    cfg.data.test.split = val_split
-
     # We can still use the pre-trained Mask RCNN model though we do not need to
     # use the mask branch
     # cfg.load_from = (
@@ -176,7 +168,9 @@ def main(
     # Create work_dir
     mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
     cfg.dump(osp.join(out_dir, "config.py"))
-    train_segmentor(model, datasets, cfg, distributed=False, validate=True, meta=dict())
+    train_segmentor(
+        model, datasets, cfg, distributed=False, validate=validate, meta=dict()
+    )
 
 
 if __name__ == "__main__":
