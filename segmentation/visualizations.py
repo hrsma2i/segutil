@@ -118,9 +118,6 @@ def vis_segmap(
         :func:`matploblib.pyplot.legend` to show a legend.
 
     """
-    # 255 -> -1
-    label = (label.astype(np.uint8) + 1).astype(np.int32) - 1
-
     import matplotlib
     from matplotlib.patches import Patch
 
