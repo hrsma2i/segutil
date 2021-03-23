@@ -46,10 +46,10 @@ def main(
     ),
     validate: bool = False,
     max_iters: int = 80000,
-    log_interval: int = 10,
-    eval_interval: int = 200,
-    save_interval: int = 200,
-    batch_size: int = 2,
+    log_interval: int = 1,
+    eval_interval: int = 1000,
+    save_interval: int = 1000,
+    batch_size: int = 30,
 ):
     with (Path(data_root) / classes_txt).open() as f:
         classes = [x.rstrip() for x in f]
