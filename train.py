@@ -33,6 +33,9 @@ def main(
         help="The relative path for a txt file, where a np.ndarray is saved,"
         " whose shape is (#classes, RGB)",
     ),
+    class_weight_txt=typer.Option(
+        None, help="The relative path for a txt file, where lists classes' weight."
+    ),
     resume_from=typer.Option(
         None,
         help="The (abusolute) path for a checkpoint file to resume.",
@@ -75,6 +78,13 @@ def main(
     cfg.model.decode_head.loss_decode.use_sigmoid = False
     cfg.model.auxiliary_head[0].loss_decode.use_sigmoid = False
     cfg.model.auxiliary_head[1].loss_decode.use_sigmoid = False
+
+    if class_weight_txt is not None:
+        with (Path(data_root) / class_weight_txt).open() as f:
+            class_weight = [float(x.rstrip()) for x in f]
+        cfg.model.decode_head.loss_decode.class_weight = class_weight
+        cfg.model.auxiliary_head[0].loss_decode.class_weight = class_weight
+        cfg.model.auxiliary_head[1].loss_decode.class_weight = class_weight
 
     # Modify dataset type and path
     cfg.dataset_type = "CustomDataset"
