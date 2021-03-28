@@ -9,6 +9,9 @@ from mmseg.apis import set_random_seed, train_segmentor
 from mmseg.datasets import build_dataset
 from mmseg.models import build_segmentor
 
+# to register the sampler
+import segmentation.area_based_sampler
+
 config_file = "configs/fastscnn/fast_scnn_4x8_80k_lr0.12_cityscapes.py"
 
 
