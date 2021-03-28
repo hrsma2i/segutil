@@ -36,6 +36,10 @@ def main(
     class_weight_txt=typer.Option(
         None, help="The relative path for a txt file, where lists classes' weight."
     ),
+    area_based_sample: bool = typer.Option(
+        False,
+        help="Weighten pixels to calculate losses by its class's area inverse.",
+    ),
     resume_from=typer.Option(
         None,
         help="The (abusolute) path for a checkpoint file to resume.",
@@ -85,6 +89,11 @@ def main(
         cfg.model.decode_head.loss_decode.class_weight = class_weight
         cfg.model.auxiliary_head[0].loss_decode.class_weight = class_weight
         cfg.model.auxiliary_head[1].loss_decode.class_weight = class_weight
+
+    if area_based_sample:
+        cfg.model.decode_head.sampler = dict(type="AreaBasedSampler")
+        cfg.model.auxiliary_head[0].sampler = dict(type="AreaBasedSampler")
+        cfg.model.auxiliary_head[1].sampler = dict(type="AreaBasedSampler")
 
     # Modify dataset type and path
     cfg.dataset_type = "CustomDataset"
