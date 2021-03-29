@@ -43,6 +43,10 @@ def main(
         False,
         help="Weighten pixels to calculate losses by its class's area inverse.",
     ),
+    lovasz: bool = typer.Option(
+        False,
+        help="Use Lovasz loss instead of SCE.",
+    ),
     resume_from=typer.Option(
         None,
         help="The (abusolute) path for a checkpoint file to resume.",
@@ -82,9 +86,20 @@ def main(
     cfg.model.auxiliary_head[0].num_classes = len(classes)
     cfg.model.auxiliary_head[1].num_classes = len(classes)
 
-    cfg.model.decode_head.loss_decode.use_sigmoid = False
-    cfg.model.auxiliary_head[0].loss_decode.use_sigmoid = False
-    cfg.model.auxiliary_head[1].loss_decode.use_sigmoid = False
+    if not lovasz:
+        cfg.model.decode_head.loss_decode.use_sigmoid = False
+        cfg.model.auxiliary_head[0].loss_decode.use_sigmoid = False
+        cfg.model.auxiliary_head[1].loss_decode.use_sigmoid = False
+    else:
+        cfg.model.decode_head.loss_decode = dict(
+            type="LovaszLoss", per_image=True, loss_weight=0.4
+        )
+        cfg.model.auxiliary_head[0].loss_decode = dict(
+            type="LovaszLoss", per_image=True, loss_weight=0.4
+        )
+        cfg.model.auxiliary_head[1].loss_decode = dict(
+            type="LovaszLoss", per_image=True, loss_weight=0.4
+        )
 
     if class_weight_txt is not None:
         with (Path(data_root) / class_weight_txt).open() as f:
