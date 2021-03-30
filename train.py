@@ -86,27 +86,37 @@ def main(
     cfg.model.auxiliary_head[0].num_classes = len(classes)
     cfg.model.auxiliary_head[1].num_classes = len(classes)
 
+    if class_weight_txt is not None:
+        with (Path(data_root) / class_weight_txt).open() as f:
+            class_weight = [float(x.rstrip()) for x in f]
+
     if not lovasz:
         cfg.model.decode_head.loss_decode.use_sigmoid = False
         cfg.model.auxiliary_head[0].loss_decode.use_sigmoid = False
         cfg.model.auxiliary_head[1].loss_decode.use_sigmoid = False
+        if class_weight_txt is not None:
+            cfg.model.decode_head.loss_decode.class_weight = class_weight
+            cfg.model.auxiliary_head[0].loss_decode.class_weight = class_weight
+            cfg.model.auxiliary_head[1].loss_decode.class_weight = class_weight
     else:
         cfg.model.decode_head.loss_decode = dict(
-            type="LovaszLoss", per_image=True, loss_weight=0.4
+            type="LovaszLoss",
+            per_image=True,
+            loss_weight=0.4,
+            class_weight=class_weight if class_weight_txt is not None else None,
         )
         cfg.model.auxiliary_head[0].loss_decode = dict(
-            type="LovaszLoss", per_image=True, loss_weight=0.4
+            type="LovaszLoss",
+            per_image=True,
+            loss_weight=0.4,
+            class_weight=class_weight if class_weight_txt is not None else None,
         )
         cfg.model.auxiliary_head[1].loss_decode = dict(
-            type="LovaszLoss", per_image=True, loss_weight=0.4
+            type="LovaszLoss",
+            per_image=True,
+            loss_weight=0.4,
+            class_weight=class_weight if class_weight_txt is not None else None,
         )
-
-    if class_weight_txt is not None:
-        with (Path(data_root) / class_weight_txt).open() as f:
-            class_weight = [float(x.rstrip()) for x in f]
-        cfg.model.decode_head.loss_decode.class_weight = class_weight
-        cfg.model.auxiliary_head[0].loss_decode.class_weight = class_weight
-        cfg.model.auxiliary_head[1].loss_decode.class_weight = class_weight
 
     if area_based_sample:
         cfg.model.decode_head.sampler = dict(type="AreaBasedSampler")
