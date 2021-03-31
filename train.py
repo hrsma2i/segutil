@@ -101,19 +101,22 @@ def main(
     else:
         cfg.model.decode_head.loss_decode = dict(
             type="LovaszLoss",
-            per_image=True,
+            per_image=False,
+            reduction="none",
             loss_weight=0.4,
             class_weight=class_weight if class_weight_txt is not None else None,
         )
         cfg.model.auxiliary_head[0].loss_decode = dict(
             type="LovaszLoss",
-            per_image=True,
+            per_image=False,
+            reduction="none",
             loss_weight=0.4,
             class_weight=class_weight if class_weight_txt is not None else None,
         )
         cfg.model.auxiliary_head[1].loss_decode = dict(
             type="LovaszLoss",
-            per_image=True,
+            per_image=False,
+            reduction="none",
             loss_weight=0.4,
             class_weight=class_weight if class_weight_txt is not None else None,
         )
@@ -133,12 +136,16 @@ def main(
     cfg.img_norm_cfg = dict(
         mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True
     )
-    cfg.crop_size = (512, 512)
+    # height, width
+    # c.f., https://github.com/open-mmlab/mmsegmentation/issues/30
+    cfg.crop_size = (500, 334)
     cfg.train_pipeline = [
         dict(type="LoadImageFromFile"),
         dict(type="LoadAnnotations"),
-        dict(type="Resize", img_scale=(1500, 1000), ratio_range=(0.5, 2.0)),
-        dict(type="RandomCrop", crop_size=cfg.crop_size, cat_max_ratio=0.75),
+        dict(type="Resize", img_scale=(1000, 667), ratio_range=(0.75, 1.5)),
+        # for cat_max_ratio meaning
+        # c.f., https://github.com/open-mmlab/mmsegmentation/issues/30
+        dict(type="RandomCrop", crop_size=cfg.crop_size, cat_max_ratio=0.5),
         dict(type="RandomFlip", prob=0.5),
         dict(type="PhotoMetricDistortion"),
         dict(type="Normalize", **cfg.img_norm_cfg),
