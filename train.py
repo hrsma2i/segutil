@@ -47,6 +47,10 @@ def main(
         False,
         help="Use Lovasz loss instead of SCE.",
     ),
+    per_image: bool = typer.Option(
+        False,
+        help="Use Lovasz loss instead of SCE.",
+    ),
     resume_from=typer.Option(
         None,
         help="The (abusolute) path for a checkpoint file to resume.",
@@ -101,19 +105,22 @@ def main(
     else:
         cfg.model.decode_head.loss_decode = dict(
             type="LovaszLoss",
-            per_image=True,
+            per_image=per_image,
+            reduction="mean" if per_image else "none",
             loss_weight=0.4,
             class_weight=class_weight if class_weight_txt is not None else None,
         )
         cfg.model.auxiliary_head[0].loss_decode = dict(
             type="LovaszLoss",
-            per_image=True,
+            per_image=per_image,
+            reduction="mean" if per_image else "none",
             loss_weight=0.4,
             class_weight=class_weight if class_weight_txt is not None else None,
         )
         cfg.model.auxiliary_head[1].loss_decode = dict(
             type="LovaszLoss",
-            per_image=True,
+            per_image=per_image,
+            reduction="mean" if per_image else "none",
             loss_weight=0.4,
             class_weight=class_weight if class_weight_txt is not None else None,
         )
