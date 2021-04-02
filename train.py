@@ -1,3 +1,4 @@
+from functools import reduce
 import os.path as osp
 from pathlib import Path
 
@@ -5,12 +6,14 @@ import typer
 import numpy as np
 import mmcv
 from mmcv import Config
-from mmseg.apis import set_random_seed, train_segmentor
+from mmseg.apis import set_random_seed
 from mmseg.datasets import build_dataset
 from mmseg.models import build_segmentor
 
 # to register the sampler
 import segmentation.area_based_sampler
+from segmentation.balanced_batch.batch_samplers import BalancedBatchSampler
+from segmentation.balanced_batch.train import train_segmentor
 
 config_file = "configs/fastscnn/fast_scnn_4x8_80k_lr0.12_cityscapes.py"
 
@@ -61,6 +64,11 @@ def main(
     val_split=typer.Option(
         None,
         help="The relative path for a txt file listing image names to validate and test on.",
+    ),
+    index_class_csv=typer.Option(
+        None,
+        help="The relative path for a CSV file includes two columns"
+        " used in BalancedBatchSampler; index, class_id.",
     ),
     out_dir=typer.Option(
         ...,
@@ -134,7 +142,12 @@ def main(
     cfg.dataset_type = "CustomDataset"
     cfg.data_root = data_root
 
-    cfg.data.samples_per_gpu = batch_size
+    if index_class_csv is None:
+        batch_sampler = None
+        cfg.data.samples_per_gpu = batch_size
+    else:
+        batch_sampler = BalancedBatchSampler(osp.join(data_root, index_class_csv))
+        cfg.data.samples_per_gpu = batch_sampler.num_classes
     cfg.data.workers_per_gpu = 8
 
     cfg.img_norm_cfg = dict(
@@ -142,11 +155,11 @@ def main(
     )
     # height, width
     # c.f., https://github.com/open-mmlab/mmsegmentation/issues/30
-    cfg.crop_size = (500, 334)
+    cfg.crop_size = (450, 300)
     cfg.train_pipeline = [
         dict(type="LoadImageFromFile"),
         dict(type="LoadAnnotations"),
-        dict(type="Resize", img_scale=(1000, 667), ratio_range=(0.75, 1.5)),
+        dict(type="Resize", img_scale=(900, 600), ratio_range=(0.75, 1.5)),
         # for cat_max_ratio meaning
         # c.f., https://github.com/open-mmlab/mmsegmentation/issues/30
         dict(type="RandomCrop", crop_size=cfg.crop_size, cat_max_ratio=0.5),
@@ -229,7 +242,13 @@ def main(
     mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
     cfg.dump(osp.join(out_dir, "config.py"))
     train_segmentor(
-        model, datasets, cfg, distributed=False, validate=validate, meta=dict()
+        model,
+        datasets,
+        cfg,
+        distributed=False,
+        validate=validate,
+        meta=dict(),
+        batch_sampler=batch_sampler,
     )
 
 
