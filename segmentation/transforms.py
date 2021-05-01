@@ -1,8 +1,74 @@
-from typing import Sequence
+from typing import Sequence, List, Dict, Any, Union
+
 import numpy as np
 from PIL import Image
+from pycocotools import mask as mutils
 
 from segmentation.visualizations import voc_colormap
+
+
+def coco_ann_to_mask(
+    ann: Union[List[List[int]], Dict[str, Any]],
+    height: int,
+    weight: int,
+) -> np.ndarray:
+    """[summary]
+
+    Args:
+        ann (Union[polygons, rle]):
+            - polygons: List[List[int]]
+            - rle (Dict[str, Any]): a dict with the follwing schema;
+                {
+                    "size": [height(int), width(int))],
+                    "counts": RLE(str),
+                }
+        height (int): [description]
+        weight (int): [description]
+
+    Raises:
+        ValueError: annotation format is neither polygons or rle.
+
+    Returns:
+        np.ndarray; {0,1}^(height, width): a binary mask
+    """
+    if isinstance(ann, list):
+        return coco_polygon_to_mask(ann, height, weight)
+    elif isinstance(ann, dict) and "counts" in ann.keys():
+        return coco_rle_to_mask(ann)
+    else:
+        raise ValueError(f"annotation is invalid type {type(ann)}")
+
+
+def coco_polygon_to_mask(
+    polygons: List[List[int]], height: int, weight: int
+) -> np.ndarray:
+    """[summary]
+
+    Args:
+        polygons (List[List[int]]): [description]
+        height (int): [description]
+        weight (int): [description]
+
+    Returns:
+        np.ndarray; {0,1}^(height, width): a binary mask
+    """
+    return np.max(mutils.decode(mutils.frPyObjects(polygons, height, weight)), axis=2)
+
+
+def coco_rle_to_mask(rle: Dict[str, Any]) -> np.ndarray:
+    """[summary]
+
+    Args:
+        rle (Dict[str, Any]): a dict with the follwing schema;
+            {
+                "size": [height(int), width(int))],
+                "counts": RLE(str),
+            }
+
+    Returns:
+        np.ndarray; {0, 1}^(height, width): a binary mask
+    """
+    return mutils.decode(rle)
 
 
 def masks_to_segmap(masks: np.ndarray, class_ids: np.ndarray) -> np.ndarray:
