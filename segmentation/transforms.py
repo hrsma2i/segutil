@@ -9,8 +9,8 @@ from segmentation.visualizations import voc_colormap
 
 def coco_ann_to_mask(
     ann: Union[List[List[int]], Dict[str, Any]],
-    height: int,
-    weight: int,
+    height: int = None,
+    width: int = None,
 ) -> np.ndarray:
     """[summary]
 
@@ -22,8 +22,8 @@ def coco_ann_to_mask(
                     "size": [height(int), width(int))],
                     "counts": RLE(str),
                 }
-        height (int): [description]
-        weight (int): [description]
+        height (int): This is necessary when ann is a polygon.
+        width (int): This is necessary when ann is a polygon.
 
     Raises:
         ValueError: annotation format is neither polygons or rle.
@@ -32,7 +32,7 @@ def coco_ann_to_mask(
         np.ndarray; {0,1}^(height, width): a binary mask
     """
     if isinstance(ann, list):
-        return coco_polygon_to_mask(ann, height, weight)
+        return coco_polygon_to_mask(ann, height, width)
     elif isinstance(ann, dict) and "counts" in ann.keys():
         return coco_rle_to_mask(ann)
     else:
@@ -40,19 +40,19 @@ def coco_ann_to_mask(
 
 
 def coco_polygon_to_mask(
-    polygons: List[List[int]], height: int, weight: int
+    polygons: List[List[int]], height: int, width: int
 ) -> np.ndarray:
     """[summary]
 
     Args:
         polygons (List[List[int]]): [description]
         height (int): [description]
-        weight (int): [description]
+        width (int): [description]
 
     Returns:
         np.ndarray; {0,1}^(height, width): a binary mask
     """
-    return np.max(mutils.decode(mutils.frPyObjects(polygons, height, weight)), axis=2)
+    return np.max(mutils.decode(mutils.frPyObjects(polygons, height, width)), axis=2)
 
 
 def coco_rle_to_mask(rle: Dict[str, Any]) -> np.ndarray:
