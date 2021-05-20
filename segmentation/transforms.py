@@ -71,20 +71,23 @@ def coco_rle_to_mask(rle: Dict[str, Any]) -> np.ndarray:
     return mutils.decode(rle)
 
 
-def masks_to_segmap(masks: np.ndarray, class_ids: np.ndarray) -> np.ndarray:
+def masks_to_segmap(masks: List[np.ndarray], class_ids: List[int]) -> np.ndarray:
     """Compress binary masks to a segmentatoin map for a particular image
 
     Args:
-        masks     (np.ndarray; {0, 1}^(height, width, #rles_i)): binary masks
-        class_ids (np.ndarray;      C^(#rles_i, )):
-            C: {0, 1, ..., #classes-1}
-                0: must be background
-            #rles_i: the number of RLE annotations for an image `i`
+        masks     (List[np.ndarray]; [{0, 1}^(height, width) * #RLEs]): binary masks
+            #RLEs: the number of RLEs for a single image.
+        class_ids (List[int]): A list of class ids for each binary mask.
+            This ranges in {0, 1, ..., #classes}.
+            0: must be background
+            #classes: The number of all classes.
 
     Returns:
         segmap (np.ndarray; C^(height, width)): a segmentation map
     """
-    segmap = np.max(class_ids * masks, axis=-1).astype(np.uint8)
+    masks = np.array(masks)
+    class_ids = np.array(class_ids)
+    segmap = np.max(class_ids * masks, axis=0).astype(np.uint8)
     # segmap: (height, width)
 
     return segmap
