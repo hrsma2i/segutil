@@ -47,16 +47,22 @@ def decode_rle(rle: COCORLE) -> np.ndarray:
 def masks_to_segmap(masks: List[np.ndarray], category_ids: List[int]) -> np.ndarray:
     """Compress binary masks to a segmentatoin map for a particular image
 
-    Args:
-        masks     (List[np.ndarray]; [{0, 1}^(height, width) * #RLEs]): binary masks
-            #RLEs: the number of RLEs for a single image.
-        category_ids (List[int]): A list of category ids for each binary mask.
-            This ranges in {0, 1, ..., #categories}.
-            0: must be background
-            #categories: The number of all categories.
+    Parameters
+    ----------
+    masks : List[np.ndarray {0,1 (np.int32)}^(height, width)]
+        decoded binary masks
+        len(masks): the number of masks for a single images
+    category_ids : List[int]
+        each mask's category
+        len(category_ids): the number of masks for a single images
+        This ranges in {0, 1, ..., C}.
+        0: background
+        C: the number of all categories
 
-    Returns:
-        segmap (np.ndarray; C^(height, width)): a segmentation map
+    Returns
+    -------
+    np.ndarray {0, 1, ..., C (np.int32)}^(height, width)
+        0: background
     """
     masks = np.array(masks)
     # (#masks, height, width)
