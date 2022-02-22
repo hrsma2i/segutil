@@ -72,6 +72,11 @@ mask = decode_mask(rle)
 # category_ids: a list of category ids for each binary mask.
 segmap = masks_to_segmap(masks, category_ids)
 # segmap: np.ndarray in {0, 1, ..., #categories}^(height, width). 0 is background.
+
+# If predicted category_id w/o background starts from 0,
+# you must increment it by 1
+# to avoid a conflict between 1st category and background.
+segmap = masks_to_segmap(masks, [c+1 for c in category_ids])
 ```
 
 ## Visualize Segmentation Map
