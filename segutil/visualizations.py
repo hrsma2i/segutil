@@ -1,6 +1,7 @@
 from __future__ import division
 
 import numpy as np
+from matplotlib import pyplot as plot
 
 
 def voc_colormap(labels):
@@ -51,8 +52,6 @@ def vis_image(img, ax=None):
         Returns the Axes object with the plot for further tweaking.
 
     """
-    from matplotlib import pyplot as plot
-
     if ax is None:
         fig = plot.figure()
         ax = fig.add_subplot(1, 1, 1)
@@ -164,5 +163,11 @@ def vis_segmap(
         legend_handles.append(
             Patch(color=cmap(l / (n_class - 1)), label=label_names[l])
         )
+
+    ax.legend(
+        handles=legend_handles,
+        bbox_to_anchor=(1, 1),
+        loc=2,
+    )
 
     return ax, legend_handles

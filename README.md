@@ -85,11 +85,10 @@ from segutil.visualizations import vis_segmap
 # segmap: np.ndarray in {0, 1, ..., #classes}^(height, width). 0 is background.
 
 categories = ["background", "car", "bike", ...]
-ax, legend_handles = vis_segmap(
+vis_segmap(
     img,
     segmap,
     label_names=categories,
     alpha=0.7,
 )
-ax.legend(handles=legend_handles, bbox_to_anchor=(1, 1), loc=2)
 ```
