@@ -71,23 +71,23 @@ def coco_rle_to_mask(rle: Dict[str, Any]) -> np.ndarray:
     return mutils.decode(rle)
 
 
-def masks_to_segmap(masks: List[np.ndarray], class_ids: List[int]) -> np.ndarray:
+def masks_to_segmap(masks: List[np.ndarray], category_ids: List[int]) -> np.ndarray:
     """Compress binary masks to a segmentatoin map for a particular image
 
     Args:
         masks     (List[np.ndarray]; [{0, 1}^(height, width) * #RLEs]): binary masks
             #RLEs: the number of RLEs for a single image.
-        class_ids (List[int]): A list of class ids for each binary mask.
-            This ranges in {0, 1, ..., #classes}.
+        category_ids (List[int]): A list of category ids for each binary mask.
+            This ranges in {0, 1, ..., #categories}.
             0: must be background
-            #classes: The number of all classes.
+            #categories: The number of all categories.
 
     Returns:
         segmap (np.ndarray; C^(height, width)): a segmentation map
     """
     masks = np.array(masks)
-    class_ids = np.array(class_ids)
-    segmap = np.max(class_ids * masks, axis=0).astype(np.uint8)
+    category_ids = np.array(category_ids)
+    segmap = np.max(category_ids * masks, axis=0).astype(np.uint8)
     # segmap: (height, width)
 
     return segmap
@@ -95,20 +95,20 @@ def masks_to_segmap(masks: List[np.ndarray], class_ids: List[int]) -> np.ndarray
 
 def segmap_to_pil(
     segmap: np.ndarray,
-    all_class_ids: Sequence[int],
+    all_category_ids: Sequence[int],
 ) -> Image.Image:
     """[summary]
 
     Args:
         segmap    (np.ndarray; C^(height, width)): a segmentation map
-            C: {0, 1, ..., #classes-1}
+            C: {0, 1, ..., #categories-1}
                 0: must be background
-        all_class_ids (np.ndarray;  C^(#C, )):
+        all_category_ids (np.ndarray;  C^(#C, )):
 
     Returns:
         Image.Image: [description]
     """
-    palette = voc_colormap(all_class_ids)
+    palette = voc_colormap(all_category_ids)
 
     img = Image.fromarray(segmap).convert("P")
     img.putpalette(palette.astype(np.uint8))

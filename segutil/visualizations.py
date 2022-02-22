@@ -1,25 +1,27 @@
-from __future__ import division
+from __future__ import division, annotations
 
+import matplotlib
 import numpy as np
 from matplotlib import pyplot as plot
+from matplotlib.patches import Patch
 
 
-def voc_colormap(labels):
+def voc_colormap(category_ids):
     """Color map used in PASCAL VOC
 
     Args:
-        labels (iterable of ints): Class ids.
+        categories (iterable of ints): Category ids.
 
     Returns:
         numpy.ndarray: Colors in RGB order. The shape is :math:`(N, 3)`,
-        where :math:`N` is the size of :obj:`labels`. The range of the values
+        where :math:`N` is the size of :obj:`categories`. The range of the values
         is :math:`[0, 255]`.
 
     """
     colors = []
-    for label in labels:
+    for category_id in category_ids:
         r, g, b = 0, 0, 0
-        i = label
+        i = category_id
         for j in range(8):
             if i & (1 << 0):
                 r |= 1 << (7 - j)
@@ -62,12 +64,12 @@ def vis_image(img, ax=None):
 
 def vis_segmap(
     img,
-    label,
-    label_names=None,
-    label_colors=None,
-    ignore_label_color=(255, 255, 255),
+    segmap,
+    category_names=None,
+    category_colors=None,
+    ignore_category_color=(255, 255, 255),
     alpha=0.6,
-    all_label_names_in_legend=False,
+    all_category_names_in_legend=False,
     ax=None,
 ):
     """Visualize a semantic segmentation.
@@ -75,27 +77,27 @@ def vis_segmap(
     Args:
         img (~numpy.ndarray): See the table below. If this is :obj:`None`,
             no image is displayed.
-        label (~numpy.ndarray): See the table below.
-        label_names (iterable of strings): Name of labels ordered according
-            to label ids.
-        label_colors: (iterable of tuple): An iterable of colors for regular
-            labels.
+        segmap (~numpy.ndarray): See the table below.
+        category_names (iterable of strings): Name of categories ordered according
+            to category ids.
+        category_colors: (iterable of tuple): An iterable of colors for regular
+            cagtegories.
             Each color is RGB format and the range of its values is
             :math:`[0, 255]`.
             If :obj:`colors` is :obj:`None`, the default color map is used.
-        ignore_label_color (tuple): Color for ignored label.
+        ignore_category_color (tuple): Color for ignored category.
             This is RGB format and the range of its values is :math:`[0, 255]`.
             The default value is :obj:`(0, 0, 0)`.
         alpha (float): The value which determines transparency of the figure.
             The range of this value is :math:`[0, 1]`. If this
             value is :obj:`0`, the figure will be completely transparent.
             The default value is :obj:`1`. This option is useful for
-            overlaying the label on the source image.
-        all_label_names_in_legend (bool): Determines whether to include
-            all label names in a legend. If this is :obj:`False`,
-            the legend does not contain the names of unused labels.
-            An unused label is defined as a label that does not appear in
-            :obj:`label`.
+            overlaying the category on the source image.
+        all_category_names_in_legend (bool): Determines whether to include
+            all category names in a legend. If this is :obj:`False`,
+            the legend does not contain the names of unused categories.
+            An unused category is defined as a category that does not appear in
+            :obj:`segmap`.
             The default value is :obj:`False`.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
@@ -105,63 +107,60 @@ def vis_segmap(
 
         :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
         "RGB, :math:`[0, 255]`"
-        :obj:`label`, ":math:`(H, W)`", :obj:`int32`, \
-        ":math:`[-1, \#class - 1]`"
+        :obj:`segmap`, ":math:`(H, W)`", :obj:`int32`, \
+        ":math:`[-1, \#category - 1]`"
 
     Returns:
         matploblib.axes.Axes and list of matplotlib.patches.Patch:
         Returns :obj:`ax` and :obj:`legend_handles`.
-        :obj:`ax` is an :class:`matploblib.axes.Axes` with the plot.
+        :obj:`ax` is an :category:`matploblib.axes.Axes` with the plot.
         It can be used for further tweaking.
         :obj:`legend_handles` is a list of legends. It can be passed
         :func:`matploblib.pyplot.legend` to show a legend.
 
     """
-    import matplotlib
-    from matplotlib.patches import Patch
-
-    if label_names is not None:
-        n_class = len(label_names)
-    elif label_colors is not None:
-        n_class = len(label_colors)
+    if category_names is not None:
+        n_categories = len(category_names)
+    elif category_colors is not None:
+        n_categories = len(category_colors)
     else:
-        n_class = label.max() + 1
+        n_categories = segmap.max() + 1
 
-    if label_colors is not None and not len(label_colors) == n_class:
+    if category_colors is not None and not len(category_colors) == n_categories:
         raise ValueError(
-            "The size of label_colors is not same as the number of classes"
+            "The size of category_colors is not same as the number of categories"
         )
-    if label.max() >= n_class:
-        raise ValueError("The values of label exceed the number of classes")
+    if segmap.max() >= n_categories:
+        raise ValueError("The values of segmap exceed the number of categories")
 
     # Returns newly instantiated matplotlib.axes.Axes object if ax is None
     ax = vis_image(img, ax=ax)
 
-    if label_names is None:
-        label_names = [str(l) for l in range(label.max() + 1)]
+    if category_names is None:
+        category_names = [str(l) for l in range(segmap.max() + 1)]
 
-    if label_colors is None:
-        label_colors = voc_colormap(list(range(n_class)))
+    if category_colors is None:
+        category_colors = voc_colormap(list(range(n_categories)))
     # [0, 255] -> [0, 1]
-    label_colors = np.array(label_colors) / 255
-    cmap = matplotlib.colors.ListedColormap(label_colors)
+    category_colors = np.array(category_colors) / 255
+    cmap = matplotlib.colors.ListedColormap(category_colors)
 
-    canvas_img = cmap(label / (n_class - 1), alpha=alpha)
+    canvas_img = cmap(segmap / (n_categories - 1), alpha=alpha)
 
     # [0, 255] -> [0, 1]
-    ignore_label_color = (np.array(ignore_label_color) / 255,)
-    canvas_img[label < 0, :3] = ignore_label_color
+    ignore_category_color = (np.array(ignore_category_color) / 255,)
+    canvas_img[segmap < 0, :3] = ignore_category_color
 
     ax.imshow(canvas_img)
 
     legend_handles = []
-    if not all_label_names_in_legend:
-        legend_labels = [l for l in np.unique(label) if l >= 0]
+    if not all_category_names_in_legend:
+        legend_categories = [l for l in np.unique(segmap) if l >= 0]
     else:
-        legend_labels = range(n_class)
-    for l in legend_labels:
+        legend_categories = range(n_categories)
+    for l in legend_categories:
         legend_handles.append(
-            Patch(color=cmap(l / (n_class - 1)), label=label_names[l])
+            Patch(color=cmap(l / (n_categories - 1)), category=category_names[l])
         )
 
     ax.legend(

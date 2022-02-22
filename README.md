@@ -66,12 +66,12 @@ rle = {
 
 mask = coco_rle_to_mask(rle)
 # mask: np.ndarray in {0, 1}^(height, width)
-# One binary mask means a specific class.
+# One binary mask means a specific category.
 
 # masks: a list of binary masks for several categories in a single image.
-# class_ids: a list of class ids for each binary mask.
-segmap = masks_to_segmap(masks, class_ids)
-# segmap: np.ndarray in {0, 1, ..., #classes}^(height, width). 0 is background.
+# category_ids: a list of category ids for each binary mask.
+segmap = masks_to_segmap(masks, category_ids)
+# segmap: np.ndarray in {0, 1, ..., #categories}^(height, width). 0 is background.
 ```
 
 ## Visualize Segmentation Map
@@ -82,13 +82,13 @@ Example (Jupyter Notebook):
 from segutil.visualizations import vis_segmap
 
 # img: np.ndarray in {0, 1, ..., 255}^(height, width, RGB)
-# segmap: np.ndarray in {0, 1, ..., #classes}^(height, width). 0 is background.
+# segmap: np.ndarray in {0, 1, ..., #categories}^(height, width). 0 is background.
 
 categories = ["background", "car", "bike", ...]
 vis_segmap(
     img,
     segmap,
-    label_names=categories,
+    category_names=categories,
     alpha=0.7,
 )
 ```
