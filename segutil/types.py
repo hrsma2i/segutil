@@ -1,4 +1,4 @@
-from typing import List, NewType, Union, Any
+from typing import List, NewType, Union, Any, Tuple
 
 from typing_extensions import TypedDict
 
@@ -16,12 +16,14 @@ ImageWidth = NewType("Width", int)
 
 
 class COCORLE(TypedDict):
-    size: tuple[ImageHeight, ImageWidth]
+    size: Tuple[ImageHeight, ImageWidth]
     counts: bytes
 
 
 def is_rle(obj: Any) -> bool:
-    return isinstance(obj, dict) and set(COCORLE.__annotations__.keys()) == set(obj.keys())
+    return isinstance(obj, dict) and set(COCORLE.__annotations__.keys()) == set(
+        obj.keys()
+    )
 
 
 EncodedMask = Union[COCORLE, List[Polygon]]
