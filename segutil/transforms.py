@@ -5,69 +5,42 @@ from PIL import Image
 from pycocotools import mask as mutils
 
 from segutil.visualizations import voc_colormap
+from segutil.types import Polygon, COCORLE
 
 
-def coco_ann_to_mask(
-    ann: Union[List[List[int]], Dict[str, Any]],
+def decode_mask(
+    encoded_mask: Union[COCORLE, List[Polygon]],
     height: int = None,
     width: int = None,
 ) -> np.ndarray:
-    """[summary]
-
-    Args:
-        ann (Union[polygons, rle]):
-            - polygons: List[List[int]]
-            - rle (Dict[str, Any]): a dict with the follwing schema;
-                {
-                    "size": [height(int), width(int))],
-                    "counts": RLE(str),
-                }
-        height (int): This is necessary when ann is a polygon.
-        width (int): This is necessary when ann is a polygon.
-
-    Raises:
-        ValueError: annotation format is neither polygons or rle.
-
-    Returns:
-        np.ndarray; {0,1}^(height, width): a binary mask
     """
-    if isinstance(ann, list):
-        return coco_polygon_to_mask(ann, height, width)
-    elif isinstance(ann, dict) and "counts" in ann.keys():
-        return coco_rle_to_mask(ann)
+
+    Parameters
+    ----------
+    encoded_mask : Union[COCORLE, List[Polygon]]
+    height : int, optional
+    width : int, optional
+        The height and width of the image.
+        This is necessary for Polygon, by default None
+
+    Returns
+    -------
+    np.ndarray {0,1 (np.int32)}^(height, width)
+        a binary mask
+    """
+    if isinstance(encoded_mask, list):
+        return decode_polygon(encoded_mask, height, width)
+    elif isinstance(encoded_mask, dict) and "counts" in encoded_mask.keys():
+        return decode_rle(encoded_mask)
     else:
-        raise ValueError(f"annotation is invalid type {type(ann)}")
+        raise ValueError(f"invalid encoding type: {type(encoded_mask)}")
 
 
-def coco_polygon_to_mask(
-    polygons: List[List[int]], height: int, width: int
-) -> np.ndarray:
-    """[summary]
-
-    Args:
-        polygons (List[List[int]]): [description]
-        height (int): [description]
-        width (int): [description]
-
-    Returns:
-        np.ndarray; {0,1}^(height, width): a binary mask
-    """
+def decode_polygon(polygons: List[Polygon], height: int, width: int) -> np.ndarray:
     return np.max(mutils.decode(mutils.frPyObjects(polygons, height, width)), axis=2)
 
 
-def coco_rle_to_mask(rle: Dict[str, Any]) -> np.ndarray:
-    """[summary]
-
-    Args:
-        rle (Dict[str, Any]): a dict with the follwing schema;
-            {
-                "size": [height(int), width(int))],
-                "counts": RLE(str),
-            }
-
-    Returns:
-        np.ndarray; {0, 1}^(height, width): a binary mask
-    """
+def decode_rle(rle: COCORLE) -> np.ndarray:
     return mutils.decode(rle)
 
 

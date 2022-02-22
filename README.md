@@ -53,7 +53,7 @@ pip install git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAP
 ### COCO RLE → numpy.ndarray
 
 ```py
-from segutil.transforms import coco_rle_to_mask
+from segutil.transforms import decode_mask
 from segutil.transforms import masks_to_segmap
 
 rle = {
@@ -64,8 +64,8 @@ rle = {
     "counts": RLE #str like "12345 5 23456 7 456456 9 ...",
 }
 
-mask = coco_rle_to_mask(rle)
-# mask: np.ndarray in {0, 1}^(height, width)
+mask = decode_mask(rle)
+# mask: np.ndarray in {0,1 (np.int32)}^(height, width)
 # One binary mask means a specific category.
 
 # masks: a list of binary masks for several categories in a single image.
