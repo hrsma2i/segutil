@@ -4,6 +4,10 @@
 
 - [Semantic Segmentation Tools](#semantic-segmentation-tools)
     - [Setup](#setup)
+        - [Pip](#pip)
+        - [Poetry](#poetry)
+        - [For Developer](#for-developer)
+        - [Common](#common)
     - [Transform Annotations](#transform-annotations)
         - [COCO RLE → numpy.ndarray](#coco-rle-→-numpyndarray)
     - [Visualize Segmentation Map](#visualize-segmentation-map)
@@ -14,17 +18,27 @@
 
 Install Python libraries via Poetry by the following commands:
 
+### Pip
+
+```sh
+pip install git+https://github.com/hrsma2i/segmentation.git
+```
+
+### Poetry
+
+```sh
+poetry add git+https://github.com/hrsma2i/segmentation.git#main
+```
+
+
+### For Developer
+
 ```sh
 pip install poetry
-poetry install -E $EXTRAS
 poetry shell
 ```
 
-You must choose `$EXTRAS` from the following options:
-
-- `fastscnn`: Fast-SCNN dependencies
-- `vis`: Visualization dependencies
-
+### Common
 
 Install `pycocotools` by the following because Poetry doesn't support git subfolder installation.
 
