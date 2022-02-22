@@ -14,8 +14,9 @@ class Bbox:
     bottom: int
 
     @classmethod
-    def from_coco_array(cls, x: List[float]):
-        return cls(left=x[0], top=[1], width=[2], height=[3])
+    def from_coco_array(cls, bbox_array: List[float]):
+        x, y, w, h = bbox_array
+        return cls(left=x, top=y, right=x + w, bottom=y + h)
 
 
 @dataclass(frozen=True)
