@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 from pycocotools import mask as mutils
 
-from segmentation.visualizations import voc_colormap
+from segutil.visualizations import voc_colormap
 
 
 def coco_ann_to_mask(

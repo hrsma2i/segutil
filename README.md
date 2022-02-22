@@ -1,8 +1,8 @@
-# Semantic Segmentation Tools
+# SegUtil: Semantic Segmentation Utilities
 
 <!-- TOC -->
 
-- [Semantic Segmentation Tools](#semantic-segmentation-tools)
+- [SegUtil: Semantic Segmentation Utilities](#segutil-semantic-segmentation-utilities)
     - [Setup](#setup)
         - [Pip](#pip)
         - [Poetry](#poetry)
@@ -21,19 +21,20 @@ Install Python libraries via Poetry by the following commands:
 ### Pip
 
 ```sh
-pip install git+https://github.com/hrsma2i/segmentation.git
+pip install git+https://github.com/hrsma2i/segutil.git
 ```
 
 ### Poetry
 
 ```sh
-poetry add git+https://github.com/hrsma2i/segmentation.git#main
+poetry add git+https://github.com/hrsma2i/segutil.git#main
 ```
 
 
 ### For Developer
 
 ```sh
+git clone https://github.com/hrsma2i/segutil.git
 pip install poetry
 poetry shell
 ```
@@ -52,8 +53,8 @@ pip install git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAP
 ### COCO RLE → numpy.ndarray
 
 ```py
-from segmentation.transforms import coco_rle_to_mask
-from segmentation.transforms import masks_to_segmap
+from segutil.transforms import coco_rle_to_mask
+from segutil.transforms import masks_to_segmap
 
 rle = {
     "size": [
@@ -78,7 +79,7 @@ segmap = masks_to_segmap(masks, class_ids)
 Example (Jupyter Notebook):
 
 ```py
-from segmentation.visualizations import vis_segmap
+from segutil.visualizations import vis_segmap
 
 # img: np.ndarray in {0, 1, ..., 255}^(height, width, RGB)
 # segmap: np.ndarray in {0, 1, ..., #classes}^(height, width). 0 is background.

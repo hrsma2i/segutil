@@ -1,9 +1,9 @@
 [tool.poetry]
-name = "segmentation"
+name = "segutil"
 version = "0.1.0"
 description = ""
 authors = ["hrsma2i <hrs.ma2i@gmail.com>"]
-packages = [{ include = "segmentation" }]
+packages = [{ include = "segutil" }]
 
 [tool.poetry.dependencies]
 python = ">=3.7.1,<4.0"
