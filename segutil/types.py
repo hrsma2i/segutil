@@ -1,6 +1,5 @@
-from typing import List, NewType
+from typing import List, NewType, Union, Any
 
-import numpy as np
 from typing_extensions import TypedDict
 
 # COCO Annotation format:
@@ -18,4 +17,11 @@ ImageWidth = NewType("Width", int)
 
 class COCORLE(TypedDict):
     size: tuple[ImageHeight, ImageWidth]
-    counts: str
+    counts: bytes
+
+
+def is_rle(obj: Any) -> bool:
+    return isinstance(obj, dict) and set(COCORLE.__annotations__.keys()) == set(obj.keys())
+
+
+EncodedMask = Union[COCORLE, List[Polygon]]

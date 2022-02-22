@@ -1,11 +1,11 @@
-from typing import Sequence, List, Dict, Any, Union
+from typing import Sequence, List, Union
 
 import numpy as np
 from PIL import Image
 from pycocotools import mask as mutils
 
 from segutil.visualizations import voc_colormap
-from segutil.types import Polygon, COCORLE
+from segutil.types import Polygon, COCORLE, is_rle
 
 
 def decode_mask(
@@ -30,7 +30,7 @@ def decode_mask(
     """
     if isinstance(encoded_mask, list):
         return decode_polygon(encoded_mask, height, width)
-    elif isinstance(encoded_mask, dict) and "counts" in encoded_mask.keys():
+    elif is_rle(encoded_mask):
         return decode_rle(encoded_mask)
     else:
         raise ValueError(f"invalid encoding type: {type(encoded_mask)}")
@@ -42,6 +42,10 @@ def decode_polygon(polygons: List[Polygon], height: int, width: int) -> np.ndarr
 
 def decode_rle(rle: COCORLE) -> np.ndarray:
     return mutils.decode(rle)
+
+
+def encode_mask(mask: np.ndarray) -> COCORLE:
+    return mutils.encode(np.asfortranarray(mask.astype(np.uint8)))
 
 
 def masks_to_segmap(masks: List[np.ndarray], category_ids: List[int]) -> np.ndarray:
