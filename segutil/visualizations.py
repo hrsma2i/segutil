@@ -160,7 +160,7 @@ def vis_segmap(
         legend_categories = range(n_categories)
     for l in legend_categories:
         legend_handles.append(
-            Patch(color=cmap(l / (n_categories - 1)), category=category_names[l])
+            Patch(color=cmap(l / (n_categories - 1)), label=category_names[l])
         )
 
     ax.legend(
