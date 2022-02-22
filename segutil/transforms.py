@@ -86,7 +86,9 @@ def masks_to_segmap(masks: List[np.ndarray], category_ids: List[int]) -> np.ndar
         segmap (np.ndarray; C^(height, width)): a segmentation map
     """
     masks = np.array(masks)
-    category_ids = np.array(category_ids)
+    # (#masks, height, width)
+    category_ids = np.array(category_ids).reshape(-1, 1, 1)
+    # (#masks, 1, 1)
     segmap = np.max(category_ids * masks, axis=0).astype(np.uint8)
     # segmap: (height, width)
 
