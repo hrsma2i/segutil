@@ -112,6 +112,6 @@ def segmap_to_pil(
     """
     palette = voc_colormap(all_category_ids)
 
-    img = Image.fromarray(segmap).convert("P")
+    img = Image.fromarray(segmap.astype(np.uint8)).convert("P")
     img.putpalette(palette.astype(np.uint8))
     return img
