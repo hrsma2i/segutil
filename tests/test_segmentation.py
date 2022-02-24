@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from segutil.segmentaion import Segmentation, Bbox
+from segutil.segmentation import Segmentation, Bbox
 from segutil.transforms import encode_mask
 import numpy as np
 
