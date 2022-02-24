@@ -48,6 +48,22 @@ def encode_mask(mask: np.ndarray) -> COCORLE:
     return mutils.encode(np.asfortranarray(mask.astype(np.uint8)))
 
 
+def bytes_rle_to_str(rle: COCORLE) -> dict:
+    h, w = rle["size"]
+    return {
+        "size": (int(h), int(w)),
+        "counts": rle["counts"].decode(),
+    }
+
+
+def str_rle_to_bytes(rle: dict) -> COCORLE:
+    h, w = rle["size"]
+    return {
+        "size": (int(h), int(w)),
+        "counts": rle["counts"].encode(),
+    }
+
+
 def masks_to_segmap(masks: List[np.ndarray], category_ids: List[int]) -> np.ndarray:
     """Compress binary masks to a segmentatoin map for a particular image
 

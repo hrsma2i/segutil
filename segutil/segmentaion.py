@@ -2,8 +2,8 @@ from dataclasses import dataclass, asdict, fields, Field
 from typing import List, Dict
 
 import numpy as np
-from segutil.transforms import decode_mask
-from segutil.types import EncodedMask, COCORLE, is_rle
+from segutil.transforms import decode_mask, str_rle_to_bytes, bytes_rle_to_str
+from segutil.types import EncodedMask, is_rle
 
 
 @dataclass(frozen=True)
@@ -46,6 +46,13 @@ class Segmentation:
         mask_area = np.sum(self.mask)
         return mask_area / image_area
 
+    @property
+    def str_rle(self):
+        if is_rle(self.encoded_mask):
+            return bytes_rle_to_str(self.encoded_mask)
+        else:
+            raise TypeError("Polygon is not supported")
+
     def to_dict(self):
         return asdict(
             self,
@@ -56,8 +63,7 @@ class Segmentation:
 
     def _make_serializable(self, k, v):
         if k == "encoded_mask" and is_rle(v):
-            counts: bytes = v["counts"]
-            return COCORLE(size=v["size"], counts=counts.decode())
+            return bytes_rle_to_str(v)
         else:
             return v
 
@@ -75,9 +81,7 @@ class Segmentation:
     def _make_deserializable(cls, f: Field, v):
         k = f.name
         if k == "encoded_mask" and is_rle(v):
-            counts: str = v["counts"]
-            h, w = v["size"]
-            return dict(size=(int(h), int(w)), counts=counts.encode())
+            return str_rle_to_bytes(v)
         if k == "bbox":
             return Bbox(**v)
         else:
