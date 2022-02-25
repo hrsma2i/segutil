@@ -5,51 +5,6 @@ from segutil.metrics import iou
 from segutil.segmentation import Segmentation
 
 
-def select_segmentation(
-    segs: List[Segmentation],
-    area_th: float,
-    nms_iou_th: float,
-    over_smaller: bool = True,
-    include_categories: List[int] = None,
-    exclude_categories: List[int] = None,
-) -> List[Segmentation]:
-    """Select Valid Segmentations
-
-    Parameters
-    ----------
-    segs : List[Segmentation]
-    area_th : float
-        The area threshold to cut off segmentatinos
-    nms_iou_th : float
-        The IoU threshold to select masks, by default 0.5
-    over_smaller : bool, optional
-        If this is True, the denominator of IoU is the smaller mask's area
-        instead of the union, by default True.
-    include_categories : List[int], optional
-        Included categories, by default None
-    exclude_categories : List[int], optional
-        Excluded categories, by default None
-
-    Returns
-    -------
-    List[Segmentation]
-    """
-
-    segs = category_restrict(
-        segs,
-        include=include_categories,
-        exclude=exclude_categories,
-    )
-    segs = remove_small_segs(segs, th=area_th)
-    segs = drop_duplicated_category(segs)
-    segs = non_maximum_suppression(
-        segs,
-        th=nms_iou_th,
-        over_smaller=over_smaller,
-    )
-    return segs
-
-
 def category_restrict(
     segs: List[Segmentation],
     include: List[int] = None,
